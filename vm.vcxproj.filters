@@ -18,19 +18,19 @@
     <ClCompile Include="vm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Value.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Thread.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FrameStack.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Value.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Frame.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Func.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

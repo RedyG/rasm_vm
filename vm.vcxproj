@@ -134,13 +134,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Thread.c" />
     <ClCompile Include="vm.c">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">All</AssemblerOutput>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Frame.h" />
-    <ClInclude Include="FrameStack.h" />
+    <ClInclude Include="Func.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Value.h" />
   </ItemGroup>
