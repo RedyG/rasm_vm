@@ -7,7 +7,7 @@ typedef struct {
 	uint32_t size;
 } Type;
 
-typedef union Struct {
+typedef union {
 	uint64_t u64;
 	int64_t i64;
 	uint32_t u32;

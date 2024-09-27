@@ -140,7 +140,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\OneDrive\Bureau\klib-master\khash.h" />
+    <ClInclude Include="Disassembler.h" />
+    <ClInclude Include="FileReader.h" />
     <ClInclude Include="Func.h" />
+    <ClInclude Include="String.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Value.h" />
   </ItemGroup>
