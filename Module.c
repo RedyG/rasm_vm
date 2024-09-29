@@ -1,9 +1,11 @@
 #include "Module.h"
+#include "Func.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "khash.h"
+#include "Path.h"
 
 KHASH_MAP_INIT_STR(modules, Module)
 
@@ -49,17 +51,23 @@ Module parse_module(const char* path) {
 
 		const char* import_path = (const char*)program;
 		program += strlen(import_path) + 1;
+		
+		const char* full_path = concat_from_folder(path, import_path);
 
-		module.funcs[i] = get_module(import_path).funcs[id];
+		module.funcs[i] = get_module(full_path).funcs[id];
+
+		free((void*)full_path);
 	}
 
 	// funcs
 	ProtocolFunc* protocol_funcs = (ProtocolFunc*)program;
+	program += module.funcs_count * sizeof(ProtocolFunc);
 	for (int i = 0; i < module.funcs_count; i++) {
 		module.funcs[i + module.imports_count] = (Func) {
 			.args_count = protocol_funcs[i].args_count,
 			.locals_count = protocol_funcs[i].locals_count,
-			.ip = program + protocol_funcs[i].offset
+			.ip = program + protocol_funcs[i].offset,
+			.module = module
 		};
 	}
 

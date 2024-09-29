@@ -3,7 +3,6 @@
 #include "Func.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "String.h"
 
 
 
@@ -18,7 +17,7 @@
 	NEXT; \
 }
 
-void thread_start(uint8_t* program, uint16_t main_index) {
+void thread_start(Module module, uint16_t main_id) {
 	void* opcodes[] = {
 		&&nop, &&br, &&br_true, &&br_false, &&exit, &&exit, &&call, &&ret, &&pop, &&local_get, &&local_set, &&exit, &&i8_const, &&i16_const, &&i32_const, &&i64_const,
 		&&i32_eqz, &&i32_eq, &&i32_ne, &&i32_lt, &&u32_lt, &&i32_gt, &&u32_gt, &&i32_le, &&u32_le, &&i32_ge, &&u32_ge, &&exit,   &&i64_eq, &&i64_ne, &&i64_lt, &&u64_lt,
@@ -28,43 +27,11 @@ void thread_start(uint8_t* program, uint16_t main_index) {
 		&&f64_add, &&f64_sub, &&f64_mul, &&f64_div
 	};
 
-	program += 16; // ignore magic number and version
-
-	uint16_t funcs_count = *(uint16_t*)program;
-	program += sizeof(uint16_t);
-	ProtocolFunc * protocol_funcs = (ProtocolFunc*)program;
-	program += funcs_count * sizeof(ProtocolFunc);
-	Func* funcs = malloc(funcs_count * sizeof(Func));
-
-	for (int i = 0; i < funcs_count; i++) {
-		funcs[i] = (Func) {
-			.args_count = protocol_funcs[i].args_count,
-			.locals_count = protocol_funcs[i].locals_count,
-			.ip = program + protocol_funcs[i].offset
-		};
-	}
-
-	uint16_t imports_count = *(uint16_t*)program;
-	program += sizeof(uint16_t);
-	for (int i = 0; i < imports_count; i++) {
-		uint16_t id = *(uint16_t*)program;
-		program += sizeof(uint16_t);
-		const char* name = (const char*)program;
-		program += strlen(name) + 1;
-
-
-	}
-
-
-
-
-
 	Value* sp = (Value*)(malloc(STACK_SIZE * sizeof(Value)) - sizeof(Value));
 	Value* bp = sp + 1;
-	uint8_t* ip = funcs[main_index].ip;
+	uint8_t* ip = module.funcs[main_id].ip;
 
 	NEXT;
-
 nop:
 	NEXT;
 br: {
@@ -90,11 +57,12 @@ br_true: {
 exit: {
 	printf("result: %lld\n", sp->i32);
 	free(sp);
-	free(funcs);
 	return;
 }
 call: {
-	Func func = funcs[*(uint16_t*)ip];
+	Func func = module.funcs[*(uint16_t*)ip];
+
+	module = func.module;
 
 	Value* new_bp = sp - func.args_count + 1;
 

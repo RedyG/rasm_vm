@@ -1,6 +1,7 @@
 #pragma once
-#include "Func.h"
-#include "Modules.h"
+#include <stdint.h>
+
+typedef struct Func Func;
 
 typedef struct Module {
 	uint16_t imports_count;

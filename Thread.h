@@ -1,4 +1,5 @@
 #pragma once
 #include <stdint.h>
+#include "Module.h"
 
-void thread_start(uint8_t* program, uint16_t main_index);
+void thread_start(Module module, uint16_t main_id);
