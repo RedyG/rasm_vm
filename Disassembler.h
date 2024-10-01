@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "Func.h"
 
+
 typedef struct Label {
     uint8_t* pos;
     uint16_t num;
@@ -17,18 +18,7 @@ Label* find_label(Label* labels, uint16_t labels_count, uint8_t* pos) {
     return NULL;
 }
 
-void disassemble(uint8_t* program) {
-    // Ignore magic number and version
-    program += 16;
-
-    // Read the number of functions
-    uint16_t funcs_count = *(uint16_t*)program;
-    program += sizeof(uint16_t);
-
-    // Read function table
-    ProtocolFunc* protocol_funcs = (ProtocolFunc*)program;
-    program += funcs_count * sizeof(ProtocolFunc);
-
+void disassemble(Module module) {
     const char* instruction_names[] = {
         "nop", "br", "br_true", "br_false", "exit", "", "call", "ret", "pop",
         "local_get", "local_set", "", "i8_const", "i16_const", "i32_const", "i64_const",
@@ -48,19 +38,15 @@ void disassemble(uint8_t* program) {
     uint16_t labels_count = 0;
 
     // Function disassembly
-    for (int i = 0; i < funcs_count; i++) {
-        printf("fn %d (args: %d, locals: %d):\n", i, protocol_funcs[i].args_count, protocol_funcs[i].locals_count);
+    for (int i = 0; i < module.funcs_count; i++) {
+        Func func = module.funcs[i];
+        uint8_t* ip = func.ip;
 
-        // Jump to the function's code section
-        uint8_t* ip = program + protocol_funcs[i].offset;
-
-        // Calculate the function end by checking the next function's offset (or end of code section for the last function)
-        uint32_t function_end = (i + 1 < funcs_count) ? protocol_funcs[i + 1].offset : 0xFFFFFFFF;
 
         labels_count = 0;
 
         // Disassemble the function
-        while ((ip - program) < function_end) {
+        while ((size_t)ip < 0XFFFFFFFFFFF) {
             Label* label = find_label(labels, labels_count, ip);
             if (label != NULL)
                 printf("%u:\n", label->num);

@@ -3,10 +3,12 @@
 #include "Func.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "StackFrame.h"
 
 
 
 #define STACK_SIZE 10024
+#define STACK_FRAME_SIZE 1024
 
 #define NEXT goto *opcodes[*ip++]
 
@@ -27,7 +29,9 @@ void thread_start(Module module, uint16_t main_id) {
 		&&f64_add, &&f64_sub, &&f64_mul, &&f64_div
 	};
 
+	
 	Value* sp = (Value*)(malloc(STACK_SIZE * sizeof(Value)) - sizeof(Value));
+	StackFrame* frames = (StackFrame*)malloc(STACK_FRAME_SIZE * sizeof(StackFrame));
 	Value* bp = sp + 1;
 	uint8_t* ip = module.funcs[main_id].ip;
 
@@ -57,32 +61,38 @@ br_true: {
 exit: {
 	printf("result: %lld\n", sp->i32);
 	free(sp);
+	free(frames);
 	return;
 }
 call: {
 	Func func = module.funcs[*(uint16_t*)ip];
+	ip += sizeof(uint16_t);
+
+	*(++frames) = (StackFrame) { 
+		.bp = bp,
+		.ip = ip,
+		.module = module
+	};
 
 	module = func.module;
-
-	Value* new_bp = sp - func.args_count + 1;
-
-	sp += func.locals_count + 1;
-	sp->ip = ip + 2;
-	(++sp)->bp = bp;
-
-	bp = new_bp;
-
+	bp = sp - func.args_count + 1;
+	sp += func.locals_count;
 	ip = func.ip;
 
 	NEXT;
 }
 ret: {
 	Value value = *sp;
-	Value* ret_sp = bp;
-	bp = (sp - 1)->bp;
-	ip = (sp - 2)->ip;
-	sp = ret_sp;
+	printf("ret value: %lld\n", value.i32);
+	StackFrame frame = *(frames--);
+
+	sp = bp;
 	*sp = value;
+
+	module = frame.module;
+	bp = frame.bp;
+	ip = frame.ip;
+
 
 	NEXT;
 }

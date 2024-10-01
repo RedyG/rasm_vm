@@ -146,6 +146,7 @@
     <ClInclude Include="khash.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="Path.h" />
+    <ClInclude Include="StackFrame.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Value.h" />
   </ItemGroup>
