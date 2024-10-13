@@ -67,6 +67,7 @@ Module parse_module(const char* path) {
 			.args_count = protocol_funcs[i].args_count,
 			.locals_count = protocol_funcs[i].locals_count,
 			.ip = program + protocol_funcs[i].offset,
+			.size = protocol_funcs[i].size,
 			.module = module
 		};
 	}

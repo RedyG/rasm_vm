@@ -31,22 +31,26 @@ void disassemble(Module module) {
         "i32_or", "i32_xor", "i32_shl", "i32_shr", "u32_shr", "i64_add", "i64_sub",
         "i64_mul", "i64_div", "u64_div", "i64_rem", "u64_rem", "i64_and", "i64_or",
         "i64_xor", "i64_shl", "i64_shr", "u64_shr", "f32_add", "f32_sub", "f32_mul",
-        "f32_div", "f64_add", "f64_sub", "f64_mul", "f64_div"
+        "f32_div", "f64_add", "f64_sub", "f64_mul", "f64_div", "i8_load", "i16_load",
+        "i32_load", "i64_load", "i8_store", "i16_store", "i32_store", "i64_store",
+        "alloca", "alloca_pop"
     };
 
     Label* labels = malloc(65536 * sizeof(Label));
     uint16_t labels_count = 0;
 
     // Function disassembly
-    for (int i = 0; i < module.funcs_count; i++) {
+    for (int i = 0; i < (module.funcs_count + module.imports_count); i++) {
         Func func = module.funcs[i];
         uint8_t* ip = func.ip;
 
 
         labels_count = 0;
 
+        printf("fn %d (args: %d, locals: %d, size: %d):\n", i, func.args_count, func.locals_count, func.size);
+
         // Disassemble the function
-        while ((size_t)ip < 0XFFFFFFFFFFF) {
+        while ((size_t)ip < (size_t)(func.ip + func.size)) {
             Label* label = find_label(labels, labels_count, ip);
             if (label != NULL)
                 printf("%u:\n", label->num);
@@ -114,6 +118,14 @@ void disassemble(Module module) {
                 printf(" %d", value);
                 break;
             }
+            case 84: // i8_load
+            case 85: // i16_load
+            case 86: // i32_load
+            case 87: // i64_load
+            case 88: // i8_store
+            case 89: // i16_store
+            case 90: // i32_store
+            case 91: // i64_store
             case 14:  // i32_const
             {
                 int32_t value = *(int32_t*)ip;
@@ -128,6 +140,16 @@ void disassemble(Module module) {
                 printf(" %lld", value);
                 break;
             }
+            case 92:
+            case 93:
+            case 94:
+            {
+                uint32_t offset = *(uint32_t*)ip;
+                ip += sizeof(uint32_t);
+				printf(" %u", offset);
+				break;
+            }
+
             case 5:  // exit
                 printf("\n");
                 goto end_function;  // End function disassembly

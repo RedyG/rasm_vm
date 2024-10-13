@@ -6,6 +6,7 @@
 typedef struct StackFrame
 {
 	uint8_t* ip;
+	uint8_t* alloca_bp;
 	Value* bp;
 	Module module;
 } StackFrame;

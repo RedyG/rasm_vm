@@ -3,11 +3,11 @@
 
 
 
-typedef struct {
+typedef struct Type {
 	uint32_t size;
 } Type;
 
-typedef union {
+typedef union Value {
 	uint64_t u64;
 	int64_t i64;
 	uint32_t u32;
@@ -15,7 +15,5 @@ typedef union {
 	float f32;
 	double f64;
 
-	uint8_t* ref;
-	uint8_t* ip;
-	struct Value* bp;
+	uint8_t* ptr;
 } Value;

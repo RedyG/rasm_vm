@@ -6,6 +6,7 @@ typedef struct Func Func;
 typedef struct Module {
 	uint16_t imports_count;
 	uint16_t funcs_count;
+
 	Func *funcs;
 } Module;
 
