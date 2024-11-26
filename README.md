@@ -1,5 +1,5 @@
 # RedyLang VM
-A bytecode interpreter written in C.
+A bytecode interpreter written in C. Target output of https://github.com/RedyG/RedyLangCompiler
 
 ## Main features
 * stack machine bytecode
