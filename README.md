@@ -5,7 +5,7 @@ A stack machine bytecode interpreter written in C. Target output of https://gith
 * module/import system
 * basic arithmetic
 * local variables
-* memory allocation on stack and heap ( malloc and alloca )
+* memory allocation on stack and heap (malloc and alloca)
 
 ## Current instruction set
 |   | 0         | 1         | 2         | 3         | 4     | 5       | 6       | 7         | 8       | 9           | A           | B | C         | D         | E         | F         |
@@ -18,7 +18,7 @@ A stack machine bytecode interpreter written in C. Target output of https://gith
 | 5 | `f64_add` | `f64_sub` | `f64_mul` | `f64_div` | `i8_load`| `i16_load`| `i32_load`| `i64_load`| `i8_store`| `i16_store`| `i32_store`| `i64_store`| `alloca` | `alloca_pop` | `gc_malloc` | `mem_cpy` |
 | 6 | `mem_cpy_s`|           |           |           |       |         |         |           |         |             |             |   |           |           |           |           |
 
-## Exemple ( fibonacci of 10 )
+## Exemple (fibonacci of 10)
 
 ```asm
 fn 0 (args: 0, locals: 0): // main
@@ -52,3 +52,4 @@ _:
 * Multithreading
 * full IEEE 754 float support
 * SIMD instructions
+* Optimization passes (function inlining, simplify branching, etc.)
