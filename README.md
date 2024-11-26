@@ -50,6 +50,6 @@ _:
 
 ## What's next?
 * GC support
-* Multithreading ( maybe )
+* Multithreading
 * full IEEE 754 float support
 * SIMD instructions
