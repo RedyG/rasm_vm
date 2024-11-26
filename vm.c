@@ -10,6 +10,7 @@ int main() {
 
 	Module module = get_module("C:/Users/minio/OneDrive/Bureau/redy_test/program.rasm");
 
+	//disassemble(module);
 	disassemble(module);
 	thread_start(module, 1);
 

@@ -20,10 +20,10 @@ Label* find_label(Label* labels, uint16_t labels_count, uint8_t* pos) {
 
 void disassemble(Module module) {
     const char* instruction_names[] = {
-        "nop", "br", "br_true", "br_false", "exit", "", "call", "ret", "pop",
-        "local_get", "local_set", "", "i8_const", "i16_const", "i32_const", "i64_const",
+        "nop", "br", "br_true", "br_false", "exit", "call", "ret", "ret_void", "pop",
+        "local_get", "local_set", "invalid", "i8_const", "i16_const", "i32_const", "i64_const",
         "i32_eqz", "i32_eq", "i32_ne", "i32_lt", "u32_lt", "i32_gt", "u32_gt",
-        "i32_le", "u32_le", "i32_ge", "u32_ge", "", "i64_eq", "i64_ne", "i64_lt",
+        "i32_le", "u32_le", "i32_ge", "u32_ge", "invalid", "i64_eq", "i64_ne", "i64_lt",
         "u64_lt", "i64_gt", "u64_gt", "i64_le", "u64_le", "i64_ge", "u64_ge",
         "f32_eq", "f32_ne", "f32_lt", "f32_gt", "f32_le", "f32_ge", "f64_eq",
         "f64_ne", "f64_lt", "f64_gt", "f64_le", "f64_ge", "i32_add", "i32_sub",
@@ -33,7 +33,7 @@ void disassemble(Module module) {
         "i64_xor", "i64_shl", "i64_shr", "u64_shr", "f32_add", "f32_sub", "f32_mul",
         "f32_div", "f64_add", "f64_sub", "f64_mul", "f64_div", "i8_load", "i16_load",
         "i32_load", "i64_load", "i8_store", "i16_store", "i32_store", "i64_store",
-        "alloca", "alloca_pop"
+        "alloca", "alloca_pop", "gc_malloc", "mem_cpy", "mem_cpy_s"
     };
 
     Label* labels = malloc(65536 * sizeof(Label));
@@ -89,7 +89,7 @@ void disassemble(Module module) {
 					printf("\n_:");
                 break;
             }
-            case 6:  // call
+            case 5:  // call
             {
                 uint16_t func_index = *(uint16_t*)ip;
                 ip += sizeof(uint16_t);
@@ -140,17 +140,30 @@ void disassemble(Module module) {
                 printf(" %lld", value);
                 break;
             }
-            case 92:
-            case 93:
-            case 94:
+            case 92: // alloca
+            case 93: // alloca_pop
+            case 94: // gc_malloc
+            case 96: // mem_cpy_s
             {
-                uint32_t offset = *(uint32_t*)ip;
+                uint32_t value = *(uint32_t*)ip;
                 ip += sizeof(uint32_t);
-				printf(" %u", offset);
+				printf(" %u", value);
 				break;
             }
 
-            case 5:  // exit
+            case 95: // mem_cpy (i32 dest, i32 src, u32 size)
+            {
+                uint32_t dest = *(uint32_t*)ip;
+				ip += sizeof(uint32_t);
+				uint32_t src = *(uint32_t*)ip;
+				ip += sizeof(uint32_t);
+				uint32_t size = *(uint32_t*)ip;
+				ip += sizeof(uint32_t);
+				printf(" %u %u %u", dest, src, size);
+				break;
+            }
+
+            case 4:  // exit
                 printf("\n");
                 goto end_function;  // End function disassembly
             default:

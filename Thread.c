@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "StackFrame.h"
+#include <stdio.h>
+#include <string.h>
 
 
 
@@ -19,14 +21,15 @@
 	NEXT; \
 }
 
-void thread_start(Module module, uint16_t main_id) {
+void thread_start (Module module, uint16_t main_id) {
 	void* opcodes[] = {
-		&&nop, &&br, &&br_true, &&br_false, &&exit, &&exit, &&call, &&ret, &&pop, &&local_get, &&local_set, &&exit, &&i8_const, &&i16_const, &&i32_const, &&i64_const,
+		&&nop, &&br, &&br_true, &&br_false, &&exit, &&call, &&ret, &&ret_void, &&pop, &&local_get, &&local_set, &&exit, &&i8_const, &&i16_const, &&i32_const, &&i64_const,
 		&&i32_eqz, &&i32_eq, &&i32_ne, &&i32_lt, &&u32_lt, &&i32_gt, &&u32_gt, &&i32_le, &&u32_le, &&i32_ge, &&u32_ge, &&exit,   &&i64_eq, &&i64_ne, &&i64_lt, &&u64_lt,
 		&&i64_gt,  &&u64_gt, &&i64_le, &&u64_le, &&i64_ge, &&u64_ge, &&f32_eq, &&f32_ne, &&f32_lt, &&f32_gt, &&f32_le, &&f32_ge, &&f64_eq, &&f64_ne, &&f64_lt, &&f64_gt,
 		&&f64_le,  &&f64_ge, &&i32_add, &&i32_sub, &&i32_mul, &&i32_div, &&u32_div, &&i32_rem, &&u32_rem, &&i32_and, &&i32_or, &&i32_xor, &&i32_shl, &&i32_shr, &&u32_shr, &&i64_add,
 		&&i64_sub, &&i64_mul, &&i64_div, &&u64_div, &&i64_rem, &&u64_rem, &&i64_and, &&i64_or, &&i64_xor, &&i64_shl, &&i64_shr, &&u64_shr, &&f32_add, &&f32_sub, &&f32_mul, &&f32_div,
-		&&f64_add, &&f64_sub, &&f64_mul, &&f64_div, &&i8_load, &&i16_load, &&i32_load, &&i64_load,&& i8_store,&& i16_store,&& i32_store,&& i64_store, &&alloca, &&alloca_pop
+		&&f64_add, &&f64_sub, &&f64_mul, &&f64_div, &&i8_load, &&i16_load, &&i32_load, &&i64_load,&& i8_store,&& i16_store,&& i32_store,&& i64_store, &&alloca, &&alloca_pop, &&gc_malloc,
+		&&mem_cpy, &&mem_cpy_s
 	};
 
 	uint8_t* alloca_stack = (uint8_t*)malloc(STACK_SIZE * sizeof(uint8_t));
@@ -86,7 +89,6 @@ call: {
 }
 ret: {
 	Value value = *sp;
-	printf("ret value: %lld\n", value.i32);
 	StackFrame frame = *(frames--);
 
 	sp = bp;
@@ -97,6 +99,18 @@ ret: {
 	ip = frame.ip;
 	alloca_bp = frame.alloca_bp;
 
+
+	NEXT;
+}
+ret_void: {
+	StackFrame frame = *(frames--);
+
+	sp = bp;
+
+	module = frame.module;
+	bp = frame.bp;
+	ip = frame.ip;
+	alloca_bp = frame.alloca_bp;
 
 	NEXT;
 }
@@ -282,6 +296,33 @@ alloca: {
 alloca_pop: {
 	alloca_stack -= *(uint32_t*)ip;
 	ip += sizeof(uint32_t);
+
+	NEXT;
+}
+gc_malloc: {
+	(++sp)->ptr = malloc(*(uint32_t*)ip);
+	ip += sizeof(uint32_t);
+
+	NEXT;
+}
+mem_cpy: {
+	uint8_t* src = (sp--)->ptr;
+	uint8_t* dest = (sp--)->ptr;
+
+	int32_t dest_offset = *(int32_t*)ip;
+	ip += sizeof(int32_t);
+	int32_t src_offset = *(int32_t*)ip;
+	ip += sizeof(int32_t);
+	uint32_t size = *(uint32_t*)ip;
+	ip += sizeof(uint32_t);
+	memcpy(dest + dest_offset, src + src_offset, size);
+}
+mem_cpy_s: {
+	uint8_t* src = (sp--)->ptr;
+	uint8_t* dest = (sp--)->ptr;
+	uint32_t size = *(uint32_t*)ip;
+	ip += sizeof(uint32_t);
+	memcpy(dest, src, size);
 
 	NEXT;
 }
