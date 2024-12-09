@@ -52,4 +52,3 @@ _:
 * Multithreading
 * full IEEE 754 float support
 * SIMD instructions
-* Optimization passes (function inlining, simplify branching, etc.)
