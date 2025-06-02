@@ -49,6 +49,7 @@ Module parse_module(const char* path) {
 		uint16_t id = *(uint16_t*)program;
 		program += sizeof(uint16_t);
 
+		program += 4;
 		const char* import_path = (const char*)program;
 		program += strlen(import_path) + 1;
 		

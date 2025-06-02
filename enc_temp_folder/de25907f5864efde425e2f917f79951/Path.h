@@ -16,7 +16,7 @@ const char* get_last_slash(const char* path) {
 	return last_slash;
 }
 
-const char* concat_from_folder(const char* path, const char* end_path) { // TODO: Make all of these take String instead of const char*
+const char* concat_from_folder(const char* path, const char* end_path) {
 	const char* last_slash = get_last_slash(path);
 	if (last_slash == NULL) {
 		printf("no slash in path");

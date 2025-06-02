@@ -135,6 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Module.c" />
+    <ClCompile Include="String.c" />
     <ClCompile Include="Thread.c" />
     <ClCompile Include="vm.c">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">All</AssemblerOutput>
@@ -147,6 +148,7 @@
     <ClInclude Include="Module.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="StackFrame.h" />
+    <ClInclude Include="String.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Value.h" />
   </ItemGroup>

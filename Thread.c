@@ -23,8 +23,8 @@
 
 void thread_start (Module module, uint16_t main_id) {
 	void* opcodes[] = {
-		&&nop, &&br, &&br_true, &&br_false, &&exit, &&call, &&ret, &&ret_void, &&pop, &&local_get, &&local_set, &&exit, &&i8_const, &&i16_const, &&i32_const, &&i64_const,
-		&&i32_eqz, &&i32_eq, &&i32_ne, &&i32_lt, &&u32_lt, &&i32_gt, &&u32_gt, &&i32_le, &&u32_le, &&i32_ge, &&u32_ge, &&exit,   &&i64_eq, &&i64_ne, &&i64_lt, &&u64_lt,
+		&&nop, &&br, &&br_true, &&br_false, &&call, &&call_intrinsic, &&call_indirect, &&call_external, &&ret, &&ret_void, &&pop, &&dup, &&local_get, &&local_set, &&i8_const, &&i16_const, &&i32_const, &&i64_const,
+		&&i32_eqz, &&i32_eq, &&i32_ne, &&i32_lt, &&u32_lt, &&i32_gt, &&u32_gt, &&i32_le, &&u32_le, &&i32_ge, &&u32_ge,   &&i64_eq, &&i64_ne, &&i64_lt, &&u64_lt,
 		&&i64_gt,  &&u64_gt, &&i64_le, &&u64_le, &&i64_ge, &&u64_ge, &&f32_eq, &&f32_ne, &&f32_lt, &&f32_gt, &&f32_le, &&f32_ge, &&f64_eq, &&f64_ne, &&f64_lt, &&f64_gt,
 		&&f64_le,  &&f64_ge, &&i32_add, &&i32_sub, &&i32_mul, &&i32_div, &&u32_div, &&i32_rem, &&u32_rem, &&i32_and, &&i32_or, &&i32_xor, &&i32_shl, &&i32_shr, &&u32_shr, &&i64_add,
 		&&i64_sub, &&i64_mul, &&i64_div, &&u64_div, &&i64_rem, &&u64_rem, &&i64_and, &&i64_or, &&i64_xor, &&i64_shl, &&i64_shr, &&u64_shr, &&f32_add, &&f32_sub, &&f32_mul, &&f32_div,
@@ -34,10 +34,12 @@ void thread_start (Module module, uint16_t main_id) {
 
 	uint8_t* alloca_stack = (uint8_t*)malloc(STACK_SIZE * sizeof(uint8_t));
 	uint8_t* alloca_bp = alloca_stack;
-	Value* sp = (Value*)(malloc(STACK_SIZE * sizeof(Value)) - sizeof(Value));
+	Value* sp = (Value*)(malloc(STACK_SIZE * sizeof(Value)));
 	StackFrame* frames = (StackFrame*)malloc(STACK_FRAME_SIZE * sizeof(StackFrame));
 
-	Value* bp = sp + 1;
+	Value* bp = sp;
+	sp += module.funcs[main_id].locals_count - 1;
+
 	uint8_t* ip = module.funcs[main_id].ip;
 
 	NEXT;
@@ -62,13 +64,6 @@ br_true: {
 
 	NEXT;
 }
-exit: {
-	printf("result: %lld\n", sp->i32);
-	free(alloca_bp);
-	free(sp);
-	free(frames);
-	return;
-}
 call: {
 	Func func = module.funcs[*(uint16_t*)ip];
 	ip += sizeof(uint16_t);
@@ -87,11 +82,34 @@ call: {
 
 	NEXT;
 }
+call_intrinsic: {
+	uint16_t id = *(uint16_t*)ip;
+	ip += sizeof(uint16_t);
+	printf("call_intrinsic: %d\n", id);
+
+	switch (id) {
+	case 0: // break
+		printf("result: %lld\n", sp->i32);
+		free(alloca_bp);
+		free(sp);
+		free(frames);
+		return;
+	case 1:
+		printf("print test\n");
+		NEXT;
+	}
+}
+call_indirect: {
+
+}
+call_external: {
+
+}
 ret: {
 	Value value = *sp;
 	StackFrame frame = *(frames--);
 
-	sp = bp;
+	sp = bp - 1;
 	*sp = value;
 
 	module = frame.module;
@@ -105,7 +123,7 @@ ret: {
 ret_void: {
 	StackFrame frame = *(frames--);
 
-	sp = bp;
+	sp = bp - 1;
 
 	module = frame.module;
 	bp = frame.bp;
@@ -118,8 +136,13 @@ pop: {
 	sp--;
 	NEXT;
 }
+dup: {
+	(++sp)->i64 = sp->i64;
+	NEXT;
+}
 local_get: {
 	(++sp)->i64 = bp[*(uint16_t*)ip].i64;
+	printf("local_get: %lld\n", sp->i64);
 	ip += sizeof(uint16_t);
 
 	NEXT;
@@ -131,19 +154,19 @@ local_set: {
 	NEXT;
 }
 i8_const: {
-	(++sp)->i32 = *(int8_t*)ip;
+	(++sp)->i64 = *(int8_t*)ip;
 	ip += sizeof(int8_t);
 
 	NEXT;
 }
 i16_const: {
-	(++sp)->i32 = *(int16_t*)ip;
+	(++sp)->i64 = *(int16_t*)ip;
 	ip += sizeof(int16_t);
 
 	NEXT;
 }
 i32_const: {
-	(++sp)->i32 = *(int32_t*)ip;
+	(++sp)->i64 = *(int32_t*)ip;
 	ip += sizeof(int32_t);
 
 	NEXT;

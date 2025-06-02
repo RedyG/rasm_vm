@@ -1,11 +1,6 @@
 #pragma once
 #include <stdint.h>
-
-
-
-typedef struct Type {
-	uint32_t size;
-} Type;
+#include "String.h"
 
 typedef union Value {
 	uint64_t u64;
@@ -16,4 +11,5 @@ typedef union Value {
 	double f64;
 
 	uint8_t* ptr;
+	String* str;
 } Value;
