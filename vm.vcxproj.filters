@@ -30,6 +30,15 @@
     <ClCompile Include="String.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Io.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Thread.h">
@@ -57,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

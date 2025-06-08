@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "String.h"
+#include "GC.h"
 
 typedef union Value {
 	uint64_t u64;
@@ -11,5 +12,6 @@ typedef union Value {
 	double f64;
 
 	uint8_t* ptr;
+	TypeInfo* type_info;
 	String* str;
 } Value;

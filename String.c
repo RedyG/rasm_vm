@@ -13,6 +13,17 @@ String* string_create(const char* data) {
 	return str;
 }
 
+String* string_from_length(uint32_t length) {
+	String* str = (String*)malloc(sizeof(String) + length + 1);
+	if (str == NULL)
+		return NULL; // Memory allocation failed
+
+	str->length = length;
+	memset((char*)str->data, 0, length + 1); // Initialize with null characters
+	return str;
+
+}
+
 String* string_cast(uint8_t* ptr) {
 	uint32_t length = *(uint32_t*)ptr;
 

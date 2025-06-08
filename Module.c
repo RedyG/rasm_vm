@@ -42,6 +42,9 @@ Module parse_module(const char* path) {
 	module.funcs_count = *(uint16_t*)program;
 	program += sizeof(uint16_t);
 
+	module.const_pool_size = *(uint32_t*)program;
+	program += sizeof(uint32_t);
+
 	module.funcs = (Func*)malloc((module.funcs_count + module.imports_count) * sizeof(Func));
 
 	// imports
@@ -49,7 +52,7 @@ Module parse_module(const char* path) {
 		uint16_t id = *(uint16_t*)program;
 		program += sizeof(uint16_t);
 
-		program += 4;
+		program += sizeof(uint32_t);
 		const char* import_path = (const char*)program;
 		program += strlen(import_path) + 1;
 		
@@ -63,6 +66,8 @@ Module parse_module(const char* path) {
 	// funcs
 	ProtocolFunc* protocol_funcs = (ProtocolFunc*)program;
 	program += module.funcs_count * sizeof(ProtocolFunc);
+	module.const_pool = (uint8_t*)program;
+	program += module.const_pool_size;
 	for (int i = 0; i < module.funcs_count; i++) {
 		module.funcs[i + module.imports_count] = (Func) {
 			.args_count = protocol_funcs[i].args_count,
@@ -72,7 +77,6 @@ Module parse_module(const char* path) {
 			.module = module
 		};
 	}
-
 	return module;
 }
 

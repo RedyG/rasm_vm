@@ -6,6 +6,9 @@
 #include "StackFrame.h"
 #include <stdio.h>
 #include <string.h>
+#include "String.h"
+#include "Io.h"
+#include "GC.h"
 
 
 
@@ -29,7 +32,7 @@ void thread_start (Module module, uint16_t main_id) {
 		&&f64_le,  &&f64_ge, &&i32_add, &&i32_sub, &&i32_mul, &&i32_div, &&u32_div, &&i32_rem, &&u32_rem, &&i32_and, &&i32_or, &&i32_xor, &&i32_shl, &&i32_shr, &&u32_shr, &&i64_add,
 		&&i64_sub, &&i64_mul, &&i64_div, &&u64_div, &&i64_rem, &&u64_rem, &&i64_and, &&i64_or, &&i64_xor, &&i64_shl, &&i64_shr, &&u64_shr, &&f32_add, &&f32_sub, &&f32_mul, &&f32_div,
 		&&f64_add, &&f64_sub, &&f64_mul, &&f64_div, &&i8_load, &&i16_load, &&i32_load, &&i64_load,&& i8_store,&& i16_store,&& i32_store,&& i64_store, &&alloca, &&alloca_pop, &&gc_malloc,
-		&&mem_cpy, &&mem_cpy_s
+		&&mem_cpy,&&mem_cpy_s, &&ptr_load_const
 	};
 
 	uint8_t* alloca_stack = (uint8_t*)malloc(STACK_SIZE * sizeof(uint8_t));
@@ -94,9 +97,40 @@ call_intrinsic: {
 		free(sp);
 		free(frames);
 		return;
-	case 1:
-		printf("print test\n");
+	case 1: // print
+		String* str = sp->str;
+		printf(str->data);
 		NEXT;
+	case 2: // println
+		str = sp->str;
+		printf("%s\n", str->data);
+		NEXT;
+	case 3: // readln
+		printf("call_intrinsic: %d not implemented\n", id);
+		exit(1);
+	case 4: // read_file
+	{
+		String* path = sp->str;
+		String* str = read_file_to_string((const char*)path->data);
+		sp->str = str;
+		NEXT;
+	}
+	case 5: // write_file
+	{
+		String* str = (sp--)->str;
+		String* path = (sp--)->str;
+		write_string_to_file((const char*)path->data, str);
+		NEXT;
+	}
+
+
+	case 6: // string_concat
+	{
+		String* str1 = (sp--)->str;
+		String* str2 = sp->str;
+		sp->str = string_concat(str2, str1);
+		NEXT;
+	}
 	}
 }
 call_indirect: {
@@ -323,9 +357,8 @@ alloca_pop: {
 	NEXT;
 }
 gc_malloc: {
-	(++sp)->ptr = malloc(*(uint32_t*)ip);
-	ip += sizeof(uint32_t);
-
+	TypeInfo* type_info = sp->type_info;
+	sp->ptr = gc_malloc(type_info);
 	NEXT;
 }
 mem_cpy: {
@@ -347,6 +380,12 @@ mem_cpy_s: {
 	ip += sizeof(uint32_t);
 	memcpy(dest, src, size);
 
+	NEXT;
+}
+ptr_load_const: {
+	uint32_t offset = *(uint32_t*)ip;
+	ip += sizeof(uint32_t);
+	(++sp)->str = module.const_pool + offset;
 	NEXT;
 }
 }

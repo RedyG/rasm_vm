@@ -134,6 +134,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GC.c" />
+    <ClCompile Include="Io.c" />
+    <ClCompile Include="Io.h" />
     <ClCompile Include="Module.c" />
     <ClCompile Include="String.c" />
     <ClCompile Include="Thread.c" />
@@ -144,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="Disassembler.h" />
     <ClInclude Include="Func.h" />
+    <ClInclude Include="GC.h" />
     <ClInclude Include="khash.h" />
     <ClInclude Include="Module.h" />
     <ClInclude Include="Path.h" />

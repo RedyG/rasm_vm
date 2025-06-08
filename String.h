@@ -7,5 +7,6 @@ typedef struct String {
 } String;
 
 String* string_create(const char* str);
+String* string_from_length(uint32_t length);
 String* string_cast(uint8_t* ptr);
 String* string_concat(const String* str1, const String* str2);
