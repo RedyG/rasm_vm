@@ -12,7 +12,7 @@ int main() {
 
 	//disassemble(module);
 	disassemble(module);
-	thread_start(module, 0);
+	thread_start(module, 1);
 
 	double elapsed_time = (double)(clock() - start_time) / CLOCKS_PER_SEC;
 	printf("Done in %f seconds\n", elapsed_time);

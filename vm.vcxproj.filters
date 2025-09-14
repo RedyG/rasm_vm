@@ -71,5 +71,8 @@
     <ClInclude Include="GC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="kvec.h">
+      <Filter>Header Files\klib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

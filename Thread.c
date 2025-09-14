@@ -9,7 +9,7 @@
 #include "String.h"
 #include "Io.h"
 #include "GC.h"
-
+#include "kvec.h"
 
 
 #define STACK_SIZE 10024
@@ -24,6 +24,8 @@
 	NEXT; \
 }
 
+#define IS_SP_REF(sp) (kv_size(gc_refs) > 0 && kv_top(gc_refs) == sp->ptr)
+
 void thread_start (Module module, uint16_t main_id) {
 	void* opcodes[] = {
 		&&nop, &&br, &&br_true, &&br_false, &&call, &&call_intrinsic, &&call_indirect, &&call_external, &&ret, &&ret_void, &&pop, &&dup, &&local_get, &&local_set, &&i8_const, &&i16_const, &&i32_const, &&i64_const,
@@ -32,7 +34,7 @@ void thread_start (Module module, uint16_t main_id) {
 		&&f64_le,  &&f64_ge, &&i32_add, &&i32_sub, &&i32_mul, &&i32_div, &&u32_div, &&i32_rem, &&u32_rem, &&i32_and, &&i32_or, &&i32_xor, &&i32_shl, &&i32_shr, &&u32_shr, &&i64_add,
 		&&i64_sub, &&i64_mul, &&i64_div, &&u64_div, &&i64_rem, &&u64_rem, &&i64_and, &&i64_or, &&i64_xor, &&i64_shl, &&i64_shr, &&u64_shr, &&f32_add, &&f32_sub, &&f32_mul, &&f32_div,
 		&&f64_add, &&f64_sub, &&f64_mul, &&f64_div, &&i8_load, &&i16_load, &&i32_load, &&i64_load,&& i8_store,&& i16_store,&& i32_store,&& i64_store, &&alloca, &&alloca_pop, &&gc_malloc,
-		&&mem_cpy,&&mem_cpy_s, &&ptr_load_const
+		&&gc_malloc_arr, &&mem_cpy,&&mem_cpy_s, &&ptr_load_const
 	};
 
 	uint8_t* alloca_stack = (uint8_t*)malloc(STACK_SIZE * sizeof(uint8_t));
@@ -42,6 +44,9 @@ void thread_start (Module module, uint16_t main_id) {
 
 	Value* bp = sp;
 	sp += module.funcs[main_id].locals_count - 1;
+
+	GCRefVec gc_refs;
+	kv_init(gc_refs);
 
 	uint8_t* ip = module.funcs[main_id].ip;
 
@@ -75,7 +80,8 @@ call: {
 		.bp = bp,
 		.ip = ip,
 		.module = module,
-		.alloca_bp = alloca_bp
+		.alloca_bp = alloca_bp,
+		.gc_refs_size = kv_size(gc_refs)
 	};
 
 	module = func.module;
@@ -91,7 +97,8 @@ call_intrinsic: {
 	printf("call_intrinsic: %d\n", id);
 
 	switch (id) {
-	case 0: // break
+	case 0: // exit
+		gc_collect(gc_refs);
 		printf("result: %lld\n", sp->i32);
 		free(alloca_bp);
 		free(sp);
@@ -150,7 +157,10 @@ ret: {
 	bp = frame.bp;
 	ip = frame.ip;
 	alloca_bp = frame.alloca_bp;
-
+	bool is_ref = IS_SP_REF(sp);
+	kv_set_size(gc_refs, frame.gc_refs_size); // TODO: maybe resize gc_refs instead of setting size? Because rn it will never actually shrink
+	if (is_ref)
+		kv_push(uint8_t*, gc_refs, sp->ptr);
 
 	NEXT;
 }
@@ -163,15 +173,19 @@ ret_void: {
 	bp = frame.bp;
 	ip = frame.ip;
 	alloca_bp = frame.alloca_bp;
+	kv_set_size(gc_refs, frame.gc_refs_size); // TODO: maybe resize gc_refs instead of setting size? Because rn it will never actually shrink
 
 	NEXT;
 }
 pop: {
 	sp--;
+	if (kv_size(gc_refs) > 0 && kv_top(gc_refs) == sp->ptr) {
+		kv_pop(gc_refs);
+	}
 	NEXT;
 }
 dup: {
-	(++sp)->i64 = sp->i64;
+	(++sp)->i64 = sp->i64; // don't need to add it to gc_refs since it is already there once
 	NEXT;
 }
 local_get: {
@@ -357,8 +371,24 @@ alloca_pop: {
 	NEXT;
 }
 gc_malloc: {
+	//gc_collect(gc_refs); // for debug purposes, remove later
+
 	TypeInfo* type_info = sp->type_info;
 	sp->ptr = gc_malloc(type_info);
+	kv_push(uint8_t*, gc_refs, sp->ptr);
+
+	//gc_collect(gc_refs);
+	NEXT;
+}
+gc_malloc_arr: {
+	//gc_collect(gc_refs); // for debug purposes, remove later
+
+	TypeInfo* type_info = sp->type_info;
+	uint32_t items_count = (sp--)->i32;
+	sp->ptr = gc_malloc_array(type_info, items_count);
+	kv_push(uint8_t*, gc_refs, sp->ptr);
+
+	//gc_collect(gc_refs);
 	NEXT;
 }
 mem_cpy: {
@@ -385,7 +415,7 @@ mem_cpy_s: {
 ptr_load_const: {
 	uint32_t offset = *(uint32_t*)ip;
 	ip += sizeof(uint32_t);
-	(++sp)->str = module.const_pool + offset;
+	(++sp)->ptr = module.const_pool + offset;
 	NEXT;
 }
 }

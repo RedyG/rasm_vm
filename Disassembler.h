@@ -33,7 +33,7 @@ void disassemble(Module module) {
         "i64_xor", "i64_shl", "i64_shr", "u64_shr", "f32_add", "f32_sub", "f32_mul",
         "f32_div", "f64_add", "f64_sub", "f64_mul", "f64_div", "i8_load", "i16_load",
         "i32_load", "i64_load", "i8_store", "i16_store", "i32_store", "i64_store",
-        "alloca", "alloca_pop", "gc_malloc", "mem_cpy", "mem_cpy_s", "ptr_load_const"
+        "alloca", "alloca_pop", "gc_malloc", "gc_malloc_arr", "mem_cpy", "mem_cpy_s", "ptr_load_const"
     };
 
     Label* labels = malloc(65536 * sizeof(Label));
@@ -145,9 +145,9 @@ void disassemble(Module module) {
             }
             case 93: // alloca
             case 94: // alloca_pop
-            case 95: // gc_malloc
-            case 97: // mem_cpy_s
-			case 98: // ptr_load_const
+            case 96: // gc_malloc_arr
+            case 98: // mem_cpy_s
+			case 99: // ptr_load_const
             {
                 uint32_t value = *(uint32_t*)ip;
                 ip += sizeof(uint32_t);
@@ -155,7 +155,7 @@ void disassemble(Module module) {
 				break;
             }
 
-            case 96: // mem_cpy (i32 dest, i32 src, u32 size)
+            case 97: // mem_cpy (i32 dest, i32 src, u32 size)
             {
                 uint32_t dest = *(uint32_t*)ip;
 				ip += sizeof(uint32_t);
