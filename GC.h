@@ -22,7 +22,7 @@ uint32_t get_items_count(void* obj);
 
 void* gc_malloc_array(TypeInfo* type_info, uint32_t items_count);
 
-void* gc_malloc(TypeInfo* type_info) {
+static inline void* gc_malloc(TypeInfo* type_info) {
 	return gc_malloc_array(type_info, 1);
 }
 

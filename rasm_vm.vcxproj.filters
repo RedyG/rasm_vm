@@ -13,48 +13,40 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\klib">
-      <UniqueIdentifier>{aa3c5009-213e-4098-8389-6b723d4dc994}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="vm.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Thread.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Module.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="String.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Io.h">
+    <ClInclude Include="StackFrame.h">
       <Filter>Header Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Io.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GC.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Func.h">
+    <ClInclude Include="bitset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Disassembler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Func.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Io.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="khash.h">
-      <Filter>Header Files\klib</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kvec.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Module.h">
       <Filter>Header Files</Filter>
@@ -62,17 +54,31 @@
     <ClInclude Include="Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StackFrame.h">
+    <ClInclude Include="portability.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="String.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GC.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="kvec.h">
-      <Filter>Header Files\klib</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="String.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bitset.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Module.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
