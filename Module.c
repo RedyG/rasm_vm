@@ -11,6 +11,22 @@ KHASH_MAP_INIT_STR(modules, Module)
 
 khash_t(modules)* modules_cache = NULL;
 
+static void inspect_memory(void* ptr) {
+	uint8_t* p = (uint8_t*)ptr;
+	printf("Memory around %p:\n", ptr);
+
+	// Print 10 bytes before and 10 bytes after
+	for (int i = -10; i <= 10; i++) {
+		uint8_t* addr = p + i;
+		printf("%p: %02X", addr, *addr);
+
+		if (addr == p)
+			printf("  <-- target");
+
+		printf("\n");
+	}
+}
+
 uint8_t* read_file(const char* path) {
 	FILE* fileptr;
 
@@ -42,6 +58,9 @@ Module parse_module(const char* path) {
 	module.funcs_count = *(uint16_t*)program;
 	program += sizeof(uint16_t);
 
+	uint32_t reloc_table_size = *(uint32_t*)program;
+	program += sizeof(uint32_t);
+
 	module.const_pool_size = *(uint32_t*)program;
 	program += sizeof(uint32_t);
 
@@ -66,13 +85,51 @@ Module parse_module(const char* path) {
 	// funcs
 	ProtocolFunc* protocol_funcs = (ProtocolFunc*)program;
 	program += module.funcs_count * sizeof(ProtocolFunc);
-	module.const_pool = (uint8_t*)program;
+
+	uint8_t* func_bodies = program + reloc_table_size + module.const_pool_size;
+	module.const_pool = (uint8_t*)(program + reloc_table_size);
+	uint8_t* reloc_table_start = program;
+	while (program < reloc_table_start + reloc_table_size) {
+		Module import_module;
+		if (program != reloc_table_start) {
+			uint32_t length = *(uint32_t*)program;
+			program += sizeof(uint32_t); // str length
+			const char* import_path = (const char*)program;
+			program += strlen(import_path) + 1;
+
+			const char* full_path = concat_from_folder(path, import_path);
+			import_module = get_module(full_path);
+
+			free((void*)full_path);
+		}
+		else
+			import_module = module;
+
+		uint16_t count = *(uint16_t*)program;
+		program += sizeof(uint16_t);
+
+		for (int j = 0; j < count; j++) {
+			uint32_t offset = *(uint32_t*)program ; // TODO: idk why it needs a + 1 there
+			program += sizeof(uint32_t);
+
+			uint64_t const_pool_offset = *(uint64_t*)(func_bodies + offset);
+			// print const pool offset
+			printf("Relocating import %d at offset %d to const pool offset %llu\n", j, offset, const_pool_offset);
+			inspect_memory(func_bodies + offset);
+			printf("Before: %p\n", *(uint8_t**)(func_bodies + offset));
+			*(uint8_t**)(func_bodies + offset) = (import_module.const_pool + const_pool_offset);
+			inspect_memory(func_bodies + offset);
+		}
+
+	}
+
 	program += module.const_pool_size;
+
 	for (int i = 0; i < module.funcs_count; i++) {
 		module.funcs[i + module.imports_count] = (Func) {
 			.args_count = protocol_funcs[i].args_count,
 			.locals_count = protocol_funcs[i].locals_count,
-			.ip = program + protocol_funcs[i].offset,
+			.ip = func_bodies + protocol_funcs[i].offset,
 			.size = protocol_funcs[i].size,
 			.module = module
 		};

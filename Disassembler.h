@@ -18,6 +18,23 @@ Label* find_label(Label* labels, uint16_t labels_count, uint8_t* pos) {
     return NULL;
 }
 
+void inspect_memory(void* ptr) {
+    uint8_t* p = (uint8_t*)ptr;
+    printf("Memory around %p:\n", ptr);
+
+    // Print 10 bytes before and 10 bytes after
+    for (int i = -10; i <= 10; i++) {
+        uint8_t* addr = p + i;
+        printf("%p: %02X", addr, *addr);
+
+        if (addr == p)
+            printf("  <-- target");
+
+        printf("\n");
+    }
+}
+
+
 void disassemble(Module module) {
     const char* instruction_names[] = {
         "nop", "br", "br_true", "br_false", "call", "call_intrinsic", "call_indirect", "call_external", "ret", "ret_void", "pop", "dup",
@@ -33,7 +50,7 @@ void disassemble(Module module) {
         "i64_xor", "i64_shl", "i64_shr", "u64_shr", "f32_add", "f32_sub", "f32_mul",
         "f32_div", "f64_add", "f64_sub", "f64_mul", "f64_div", "i8_load", "i16_load",
         "i32_load", "i64_load", "i8_store", "i16_store", "i32_store", "i64_store",
-        "alloca", "alloca_pop", "gc_malloc", "gc_malloc_arr", "mem_cpy", "mem_cpy_s", "ptr_load_const"
+		"alloca", "alloca_pop", "gc_malloc", "gc_malloc_arr", "mem_cpy", "mem_cpy_s", "ptr_load_const", "arr_index"
     };
 
     Label* labels = malloc(65536 * sizeof(Label));
@@ -43,6 +60,7 @@ void disassemble(Module module) {
     for (int i = 0; i < (module.funcs_count + module.imports_count); i++) {
         Func func = module.funcs[i];
         uint8_t* ip = func.ip;
+        inspect_memory(ip);
 
 
         labels_count = 0;
@@ -145,12 +163,17 @@ void disassemble(Module module) {
             }
             case 93: // alloca
             case 94: // alloca_pop
-            case 96: // gc_malloc_arr
             case 98: // mem_cpy_s
-			case 99: // ptr_load_const
             {
                 uint32_t value = *(uint32_t*)ip;
                 ip += sizeof(uint32_t);
+				printf(" %u", value);
+				break;
+            }
+			case 99: // ptr_load_const
+            {
+                uint64_t value = *(uint64_t*)ip;
+                ip += sizeof(uint64_t);
 				printf(" %u", value);
 				break;
             }

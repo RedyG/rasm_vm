@@ -2,6 +2,8 @@
 #include "GC.h"
 #include <stdlib.h>
 
+// Todo: handle locals as roots for the gc, probably store them in the StackFrame struct or someting like that, it wont be with the gc_refs vec
+
 GCHeader* gc_list_head = NULL; // TODO: store this in the thread and not globally to enable multi threading
 GCHeader* gc_list_tail = NULL;
 

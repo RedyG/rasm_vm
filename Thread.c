@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "StackFrame.h"
-#include <stdio.h>
 #include <string.h>
 #include "String.h"
 #include "Io.h"
@@ -34,7 +33,7 @@ void thread_start (Module module, uint16_t main_id) {
 		&&f64_le,  &&f64_ge, &&i32_add, &&i32_sub, &&i32_mul, &&i32_div, &&u32_div, &&i32_rem, &&u32_rem, &&i32_and, &&i32_or, &&i32_xor, &&i32_shl, &&i32_shr, &&u32_shr, &&i64_add,
 		&&i64_sub, &&i64_mul, &&i64_div, &&u64_div, &&i64_rem, &&u64_rem, &&i64_and, &&i64_or, &&i64_xor, &&i64_shl, &&i64_shr, &&u64_shr, &&f32_add, &&f32_sub, &&f32_mul, &&f32_div,
 		&&f64_add, &&f64_sub, &&f64_mul, &&f64_div, &&i8_load, &&i16_load, &&i32_load, &&i64_load,&& i8_store,&& i16_store,&& i32_store,&& i64_store, &&alloca, &&alloca_pop, &&gc_malloc,
-		&&gc_malloc_arr, &&mem_cpy,&&mem_cpy_s, &&ptr_load_const
+		&&gc_malloc_arr, &&mem_cpy,&&mem_cpy_s, &&ptr_load_const, &&arr_index
 	};
 
 	uint8_t* alloca_stack = (uint8_t*)malloc(STACK_SIZE * sizeof(uint8_t));
@@ -129,15 +128,26 @@ call_intrinsic: {
 		write_string_to_file((const char*)path->data, str);
 		NEXT;
 	}
+	case 6:
+	case 7:
+		// will i actually have list built ins? cant remember lol
+		exit(0);
+	case 8: // arr_len
+	{
+		sp->u32 = get_items_count(sp->ptr);
+		NEXT;
+	}
 
 
-	case 6: // string_concat
+
+	case 9: // string_concat
 	{
 		String* str1 = (sp--)->str;
 		String* str2 = sp->str;
 		sp->str = string_concat(str2, str1);
 		NEXT;
 	}
+
 	}
 }
 call_indirect: {
@@ -383,8 +393,8 @@ gc_malloc: {
 gc_malloc_arr: {
 	//gc_collect(gc_refs); // for debug purposes, remove later
 
-	TypeInfo* type_info = sp->type_info;
 	uint32_t items_count = (sp--)->i32;
+	TypeInfo* type_info = sp->type_info;
 	sp->ptr = gc_malloc_array(type_info, items_count);
 	kv_push(uint8_t*, gc_refs, sp->ptr);
 
@@ -413,9 +423,15 @@ mem_cpy_s: {
 	NEXT;
 }
 ptr_load_const: {
-	uint32_t offset = *(uint32_t*)ip;
-	ip += sizeof(uint32_t);
-	(++sp)->ptr = module.const_pool + offset;
+	(++sp)->ptr = *(uint8_t**)ip;
+	ip += sizeof(uint8_t**);
+	NEXT;
+}
+arr_index: {
+	uint32_t index = (sp--)->u32;
+	uint8_t* arr_ptr = sp->ptr;
+	uint32_t item_size = ((GCHeader*)(arr_ptr - sizeof(GCHeader)))->type_info->size;
+	sp->ptr = arr_ptr + (index * item_size);
 	NEXT;
 }
 }
