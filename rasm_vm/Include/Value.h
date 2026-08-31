@@ -1,6 +1,6 @@
 #pragma once
 #include <stdint.h>
-#include "String.h"
+#include "RString.h"
 #include "GC.h"
 
 typedef union Value {
@@ -13,5 +13,5 @@ typedef union Value {
 
 	uint8_t* ptr;
 	TypeInfo* type_info;
-	String* str;
+	RString* str;
 } Value;

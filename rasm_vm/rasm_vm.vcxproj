@@ -19,28 +19,28 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bitset.h" />
-    <ClInclude Include="Disassembler.h" />
-    <ClInclude Include="Func.h" />
-    <ClInclude Include="GC.h" />
-    <ClInclude Include="Io.h" />
-    <ClInclude Include="khash.h" />
-    <ClInclude Include="kvec.h" />
-    <ClInclude Include="Module.h" />
-    <ClInclude Include="Path.h" />
-    <ClInclude Include="portability.h" />
-    <ClInclude Include="StackFrame.h" />
-    <ClInclude Include="String.h" />
-    <ClInclude Include="Thread.h" />
-    <ClInclude Include="Value.h" />
-    <ClInclude Include="VM.h" />
+    <ClInclude Include="Include\bitset.h" />
+    <ClInclude Include="Include\Disassembler.h" />
+    <ClInclude Include="Include\Func.h" />
+    <ClInclude Include="Include\GC.h" />
+    <ClInclude Include="Include\Io.h" />
+    <ClInclude Include="Include\khash.h" />
+    <ClInclude Include="Include\kvec.h" />
+    <ClInclude Include="Include\Module.h" />
+    <ClInclude Include="Include\Path.h" />
+    <ClInclude Include="Include\portability.h" />
+    <ClInclude Include="Include\StackFrame.h" />
+    <ClInclude Include="Include\RString.h" />
+    <ClInclude Include="Include\Thread.h" />
+    <ClInclude Include="Include\Value.h" />
+    <ClInclude Include="Include\VM.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bitset.c" />
     <ClCompile Include="GC.c" />
     <ClCompile Include="Io.c" />
     <ClCompile Include="Module.c" />
-    <ClCompile Include="String.c" />
+    <ClCompile Include="RString.c" />
     <ClCompile Include="Thread.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -102,6 +102,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -118,6 +119,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -132,6 +134,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -148,6 +151,7 @@
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <AdditionalIncludeDirectories>$(ProjectDir)Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>

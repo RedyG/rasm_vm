@@ -15,49 +15,49 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="kvec.h">
+    <ClInclude Include="Include\kvec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Module.h">
+    <ClInclude Include="Include\Module.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Path.h">
+    <ClInclude Include="Include\Path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="portability.h">
+    <ClInclude Include="Include\portability.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StackFrame.h">
+    <ClInclude Include="Include\StackFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="String.h">
+    <ClInclude Include="Include\RString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Thread.h">
+    <ClInclude Include="Include\Thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Value.h">
+    <ClInclude Include="Include\Value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VM.h">
+    <ClInclude Include="Include\VM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bitset.h">
+    <ClInclude Include="Include\bitset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Disassembler.h">
+    <ClInclude Include="Include\Disassembler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Func.h">
+    <ClInclude Include="Include\Func.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GC.h">
+    <ClInclude Include="Include\GC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Io.h">
+    <ClInclude Include="Include\Io.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="khash.h">
+    <ClInclude Include="Include\khash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,7 +65,7 @@
     <ClCompile Include="Module.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="String.c">
+    <ClCompile Include="RString.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Thread.c">

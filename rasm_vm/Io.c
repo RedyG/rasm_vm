@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-String* read_file_to_string(const char* path) {
+RString* read_file_to_string(const char* path) {
 	FILE* fileptr;
 
 	int error = fopen_s(&fileptr, path, "rb");
@@ -17,13 +17,13 @@ String* read_file_to_string(const char* path) {
 	long filelen = ftell(fileptr);             // Get the current byte offset in the file
 	rewind(fileptr);                      // Jump back to the beginning of the file
 
-	String* str = string_from_length(filelen);
+	RString* str = string_from_length(filelen);
 	fread((void*)str->data, filelen, 1, fileptr);
 	fclose(fileptr);
 	return str;
 }
 
-void write_string_to_file(const char* path, const String* str) {
+void write_string_to_file(const char* path, const RString* str) {
 	FILE* fileptr;
 
 	int error = fopen_s(&fileptr, path, "wb");

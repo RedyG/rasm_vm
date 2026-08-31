@@ -105,7 +105,7 @@ call_intrinsic: {
 		free(frames);
 		return;
 	case 1: // print
-		String* str = sp->str;
+		RString* str = sp->str;
 		printf(str->data);
 		NEXT;
 	case 2: // println
@@ -117,15 +117,15 @@ call_intrinsic: {
 		exit(1);
 	case 4: // read_file
 	{
-		String* path = sp->str;
-		String* str = read_file_to_string((const char*)path->data);
+		RString* path = sp->str;
+		RString* str = read_file_to_string((const char*)path->data);
 		sp->str = str;
 		NEXT;
 	}
 	case 5: // write_file
 	{
-		String* str = (sp--)->str;
-		String* path = (sp--)->str;
+		RString* str = (sp--)->str;
+		RString* path = (sp--)->str;
 		write_string_to_file((const char*)path->data, str);
 		NEXT;
 	}
@@ -142,8 +142,8 @@ call_intrinsic: {
 
 	case 9: // string_concat
 	{
-		String* str1 = (sp--)->str;
-		String* str2 = sp->str;
+		RString* str1 = (sp--)->str;
+		RString* str2 = sp->str;
 		sp->str = string_concat(str2, str1);
 		NEXT;
 	}

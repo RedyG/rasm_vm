@@ -1,10 +1,10 @@
-#include "String.h"
+#include "RString.h"
 #include <string.h>
 #include <stdlib.h>
 
-String* string_create(const char* data) {
+RString* string_create(const char* data) {
 	size_t length = strlen(data);
-	String* str = (String*)malloc(sizeof(String) + length + 1);
+	RString* str = (RString*)malloc(sizeof(RString) + length + 1);
 	if (str == NULL)
 		return NULL; // Memory allocation failed
 
@@ -13,8 +13,8 @@ String* string_create(const char* data) {
 	return str;
 }
 
-String* string_from_length(uint32_t length) {
-	String* str = (String*)malloc(sizeof(String) + length + 1);
+RString* string_from_length(uint32_t length) {
+	RString* str = (RString*)malloc(sizeof(RString) + length + 1);
 	if (str == NULL)
 		return NULL; // Memory allocation failed
 
@@ -24,19 +24,19 @@ String* string_from_length(uint32_t length) {
 
 }
 
-String* string_cast(uint8_t* ptr) {
+RString* string_cast(uint8_t* ptr) {
 	uint32_t length = *(uint32_t*)ptr;
 
 	// checking if the length matches the null-terminated string, to check if it is valid.
 	if (*(ptr + sizeof(uint32_t) + length) == '\0')
-		return (String*)ptr;
+		return (RString*)ptr;
 
 	return NULL;
 }
 
-String* string_concat(const String* str1, const String* str2) {
+RString* string_concat(const RString* str1, const RString* str2) {
 	size_t new_length = str1->length + str2->length;
-	String* new_str = (String*)malloc(sizeof(String) + new_length + 1);
+	RString* new_str = (RString*)malloc(sizeof(RString) + new_length + 1);
 	if (new_str == NULL)
 		return NULL; // Memory allocation failed
 
