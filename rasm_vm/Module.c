@@ -4,12 +4,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "khash.h"
 #include "Path.h"
+#include <VM.h>
 
-KHASH_MAP_INIT_STR(modules, Module)
-
-khash_t(modules)* modules_cache = NULL;
 
 static void inspect_memory(void* ptr) {
 	uint8_t* p = (uint8_t*)ptr;
@@ -46,7 +43,7 @@ uint8_t* read_file(const char* path) {
 	return buffer;
 }
 
-Module parse_module(const char* path) {
+Module parse_module(VM* vm, const char* path) {
 	uint8_t* program = read_file(path);
 	Module module;
 
@@ -77,7 +74,7 @@ Module parse_module(const char* path) {
 		
 		const char* full_path = concat_from_folder(path, import_path);
 
-		module.funcs[i] = get_module(full_path).funcs[id];
+		module.funcs[i] = get_module(vm, full_path).funcs[id];
 
 		free((void*)full_path);
 	}
@@ -98,7 +95,7 @@ Module parse_module(const char* path) {
 			program += strlen(import_path) + 1;
 
 			const char* full_path = concat_from_folder(path, import_path);
-			import_module = get_module(full_path);
+			import_module = get_module(vm, full_path);
 
 			free((void*)full_path);
 		}
@@ -137,20 +134,20 @@ Module parse_module(const char* path) {
 	return module;
 }
 
-Module get_module(const char* path) {
-	if (modules_cache == NULL)
-		modules_cache = kh_init(modules);
+Module get_module(VM* vm, const char* path) {
+	if (vm->modules == NULL)
+		vm->modules = kh_init(modules);
 
-	khint_t key = kh_get(modules, modules_cache, path);
-	if (key != kh_end(modules_cache))
-		return kh_value(modules_cache, key);
+	khint_t key = kh_get(modules, vm->modules, path);
+	if (key != kh_end(vm->modules))
+		return kh_value(vm->modules, key);
 
-	Module module = parse_module(path);
+	Module module = parse_module(vm, path);
 
 	int ret;
-	key = kh_put(modules, modules_cache, path, &ret);
+	key = kh_put(modules, vm->modules, path, &ret);
 	if (ret) {
-		kh_value(modules_cache, key) = module; // Assign the module to the key
+		kh_value(vm->modules, key) = module; // Assign the module to the key
 	}
 
 	return module;

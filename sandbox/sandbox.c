@@ -3,11 +3,14 @@
 #include <time.h>
 #include <stdio.h>
 #include "Disassembler.h"
+#include "VM.h"
 
 int main() {
 	clock_t start_time = clock();
 
-	Module module = get_module("C:/Users/gagno/OneDrive/Documents/Programmation/c#/RedyLangCompiler/Sandbox/output/program.rasm");
+	VM* vm = vm_new();
+
+	Module module = vm_load(vm, "C:/Users/gagno/OneDrive/Documents/Programmation/c#/RedyLangCompiler/Sandbox/output/program.rasm");
 
 	disassemble(module);
 	thread_start(module, 2);

@@ -80,5 +80,8 @@
     <ClCompile Include="Io.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="VM.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

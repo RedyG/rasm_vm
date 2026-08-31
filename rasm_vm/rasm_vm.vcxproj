@@ -42,6 +42,7 @@
     <ClCompile Include="Module.c" />
     <ClCompile Include="RString.c" />
     <ClCompile Include="Thread.c" />
+    <ClCompile Include="VM.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
