@@ -7,8 +7,12 @@
 GCHeader* gc_list_head = NULL; // TODO: store this in the thread and not globally to enable multi threading
 GCHeader* gc_list_tail = NULL;
 
+GCHeader* get_gc_header(void* obj) {
+	return (GCHeader*)((uint8_t*)obj - sizeof(GCHeader));
+}
+
 uint32_t get_items_count(void* obj) {
-	GCHeader* header = (GCHeader*)((uint8_t*)obj - sizeof(GCHeader));
+	GCHeader* header = get_gc_header(obj);
 	return header->items_count;
 }
 

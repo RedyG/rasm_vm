@@ -18,6 +18,8 @@ typedef struct GCHeader {
 	struct GCHeader* next;
 } GCHeader;
 
+GCHeader* get_gc_header(void* obj);
+
 uint32_t get_items_count(void* obj);
 
 void* gc_malloc_array(TypeInfo* type_info, uint32_t items_count);

@@ -8,6 +8,7 @@
 #include "String.h"
 #include "Io.h"
 #include "GC.h"
+#include "inttypes.h"
 #include "kvec.h"
 
 
@@ -42,7 +43,7 @@ void thread_start (Module module, uint16_t main_id) {
 	StackFrame* frames = (StackFrame*)malloc(STACK_FRAME_SIZE * sizeof(StackFrame));
 
 	Value* bp = sp;
-	sp += module.funcs[main_id].locals_count - 1;
+	sp += module.funcs[main_id].locals_count;
 
 	GCRefVec gc_refs;
 	kv_init(gc_refs);
@@ -130,7 +131,6 @@ call_intrinsic: {
 	}
 	case 6:
 	case 7:
-		// will i actually have list built ins? cant remember lol
 		exit(0);
 	case 8: // arr_len
 	{
@@ -145,6 +145,22 @@ call_intrinsic: {
 		String* str1 = (sp--)->str;
 		String* str2 = sp->str;
 		sp->str = string_concat(str2, str1);
+		NEXT;
+	}
+
+	case 10: // arr_copy_to
+	{
+		uint8_t* src = (sp--)->ptr;
+		uint8_t* dest = (sp--)->ptr;
+		GCHeader* src_header = get_gc_header(src);
+		uint32_t size = src_header->items_count * src_header->type_info->size;
+		memcpy(src, dest, size);
+		NEXT;
+	}
+	case 11:
+	{
+		uint32_t val = (sp--)->u32;
+		printf("Value: %" PRIu32 "\n", val);
 		NEXT;
 	}
 
@@ -430,7 +446,7 @@ ptr_load_const: {
 arr_index: {
 	uint32_t index = (sp--)->u32;
 	uint8_t* arr_ptr = sp->ptr;
-	uint32_t item_size = ((GCHeader*)(arr_ptr - sizeof(GCHeader)))->type_info->size;
+	uint32_t item_size = get_gc_header(arr_ptr)->type_info->size;
 	sp->ptr = arr_ptr + (index * item_size);
 	NEXT;
 }
