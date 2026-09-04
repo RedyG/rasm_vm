@@ -35,7 +35,10 @@ void inspect_memory(void* ptr) {
 }
 
 
-void disassemble(Module module) {
+void disassemble(const Module* module) {
+    if (module == NULL)
+        return;
+
     const char* instruction_names[] = {
         "nop", "br", "br_true", "br_false", "call", "call_intrinsic", "call_indirect", "call_external", "ret", "ret_void", "pop", "dup",
         "local_get", "local_set", "i8_const", "i16_const", "i32_const", "i64_const",
@@ -57,18 +60,29 @@ void disassemble(Module module) {
     uint16_t labels_count = 0;
 
     // Function disassembly
-    for (int i = 0; i < (module.funcs_count + module.imports_count); i++) {
-        Func func = module.funcs[i];
-        uint8_t* ip = func.ip;
-        inspect_memory(ip);
+    for (int i = 0; i < (module->funcs_count + module->imports_count); i++) {
+        Func* func = module->funcs[i];
+        if (func == NULL) {
+            printf("fn %d <null>\n\n", i);
+            continue;
+        }
 
+        const char* name = func->name ? func->name : "?";
+
+        if (func->is_external) {
+            printf("fn %d %s (args: %d) [extern]\n\n", i, name, func->args_count);
+            continue;
+        }
+
+        uint8_t* ip = func->ip;
+        inspect_memory(ip);
 
         labels_count = 0;
 
-        printf("fn %d (args: %d, locals: %d, size: %d):\n", i, func.args_count, func.locals_count, func.size);
+        printf("fn %d %s (args: %d, locals: %d, size: %d):\n", i, name, func->args_count, func->locals_count, func->size);
 
         // Disassemble the function
-        while ((size_t)ip < (size_t)(func.ip + func.size)) {
+        while ((size_t)ip < (size_t)(func->ip + func->size)) {
             Label* label = find_label(labels, labels_count, ip);
             if (label != NULL)
                 printf("%u:\n", label->num);
@@ -195,7 +209,6 @@ void disassemble(Module module) {
 
             printf("\n");
         }
-    end_function:
         printf("\n");
     }
 

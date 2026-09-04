@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include "kvec.h"
 
+typedef struct VM VM;
+
 typedef kvec_t(uint8_t*) GCRefVec;
 
 typedef struct TypeInfo {
@@ -18,14 +20,19 @@ typedef struct GCHeader {
 	struct GCHeader* next;
 } GCHeader;
 
+typedef struct GC {
+	GCHeader* head;
+	GCHeader* tail;
+} GC;
+
 GCHeader* get_gc_header(void* obj);
 
 uint32_t get_items_count(void* obj);
 
-void* gc_malloc_array(TypeInfo* type_info, uint32_t items_count);
+void* gc_malloc_array(GC* gc, TypeInfo* type_info, uint32_t items_count);
 
-static inline void* gc_malloc(TypeInfo* type_info) {
-	return gc_malloc_array(type_info, 1);
+static inline void* gc_malloc(GC* gc, TypeInfo* type_info) {
+	return gc_malloc_array(gc, type_info, 1);
 }
 
-void gc_collect(GCRefVec gc_refs);
+void gc_collect(VM* vm);

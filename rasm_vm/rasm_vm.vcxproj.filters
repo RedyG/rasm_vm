@@ -27,9 +27,6 @@
     <ClInclude Include="Include\portability.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\StackFrame.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\RString.h">
       <Filter>Header Files</Filter>
     </ClInclude>

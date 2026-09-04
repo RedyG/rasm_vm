@@ -29,7 +29,6 @@
     <ClInclude Include="Include\Module.h" />
     <ClInclude Include="Include\Path.h" />
     <ClInclude Include="Include\portability.h" />
-    <ClInclude Include="Include\StackFrame.h" />
     <ClInclude Include="Include\RString.h" />
     <ClInclude Include="Include\Thread.h" />
     <ClInclude Include="Include\Value.h" />

@@ -1,11 +1,9 @@
 #pragma once
 #include "GC.h"
 #include <stdlib.h>
+#include <VM.h>
 
 // Todo: handle locals as roots for the gc, probably store them in the StackFrame struct or someting like that, it wont be with the gc_refs vec
-
-GCHeader* gc_list_head = NULL; // TODO: store this in the thread and not globally to enable multi threading
-GCHeader* gc_list_tail = NULL;
 
 GCHeader* get_gc_header(void* obj) {
 	return (GCHeader*)((uint8_t*)obj - sizeof(GCHeader));
@@ -16,7 +14,7 @@ uint32_t get_items_count(void* obj) {
 	return header->items_count;
 }
 
-void* gc_malloc_array(TypeInfo* type_info, uint32_t items_count) {
+void* gc_malloc_array(GC* gc, TypeInfo* type_info, uint32_t items_count) {
 	GCHeader* header = (GCHeader*)calloc(1, sizeof(GCHeader) + type_info->size * items_count);
 	if (!header)
 		return NULL;
@@ -25,14 +23,14 @@ void* gc_malloc_array(TypeInfo* type_info, uint32_t items_count) {
 	header->type_info = type_info;
 	header->next = NULL;
 	header->items_count = items_count;
-	if (gc_list_head == NULL) {
+	if (gc->head == NULL) {
 		// If this is the first allocation, initialize the list
-		gc_list_head = header;
-		gc_list_tail = header;
+		gc->head = header;
+		gc->tail = header;
 	} else {
 		// Append to the end of the list
-		gc_list_tail->next = header;
-		gc_list_tail = header;
+		gc->tail->next = header;
+		gc->tail = header;
 	}
 
 	// Return a pointer to the object part of the allocated memory
@@ -65,8 +63,8 @@ static void mark_roots(GCRefVec gc_refs) {
 	}
 }
 
-static void sweep() {
-	GCHeader* current = gc_list_head;
+static void sweep(GC* gc) {
+	GCHeader* current = gc->head;
 	GCHeader* prev = NULL;
 
 	while (current != NULL) {
@@ -74,16 +72,16 @@ static void sweep() {
 			// Unmarked object, free it
 			if (prev == NULL) {
 				// This is the head of the list
-				gc_list_head = current->next;
+				gc->head = current->next;
 			} else {
 				prev->next = current->next;
 			}
 
-			if (current == gc_list_tail) {
-				gc_list_tail = prev; // Update tail if we removed the last element
+			if (current == gc->tail) {
+				gc->tail = prev; // Update tail if we removed the last element
 			}
 			free(current);
-			current = (prev == NULL) ? gc_list_head : prev->next; // Move to next element
+			current = (prev == NULL) ? gc->head : prev->next; // Move to next element
 		}
 		else {
 			// Marked object, reset mark and move to next
@@ -94,7 +92,7 @@ static void sweep() {
 	}
 }
 
-void gc_collect(GCRefVec gc_refs) {
-	mark_roots(gc_refs);
-	sweep();
+void gc_collect(VM* vm) {
+	mark_roots(vm->thread.gc_refs);
+	sweep(&vm->gc);
 }
